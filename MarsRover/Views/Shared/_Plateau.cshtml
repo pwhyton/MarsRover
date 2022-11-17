@@ -1,0 +1,19 @@
+﻿@model PlateauModel
+
+
+<div class="plateau-container">
+     <table class="plateau" id="plateau">            
+        @{
+            for(var i=Model.Width-1; i>=0; i--)
+            {               
+                <tr class="row">
+                    @for(var j = 0; j <Model.Height; j++)
+                    {
+                         var colId = "col_" + j + "_" + i; 
+                        <td class="col"><div id="@colId" class="rover-off"/></td>    
+                    }
+                </tr>
+            }         
+         }
+      </table>
+</div>

@@ -1,0 +1,164 @@
+﻿@{
+    ViewData["Title"] = "Mars Rover";
+}
+@model PlateauModel
+
+<script>
+    $(document).ready(function() {
+
+        reset();
+
+        $("#roverclick").on("click", function(event){
+            if(roverIndex===roverCount){
+                $("#rover-progress").text("All Rovers Have Been Launched!");
+                return;
+            }
+
+            var roverIndexDisplay = parseInt(roverIndex,10) + 1;
+            var rover = uploadInstructions[roverIndex];
+            if(rover){
+                $("#rover-progress").text("Launching Rover " + roverIndexDisplay);
+                console.log("processing rover " + roverIndexDisplay);
+                processRover(roverIndex);
+            }
+        });
+
+        $("#moverovers").click(function(){
+            startMoving();
+            if(uploadInstructions==null){
+                alert("no instructions loaded");
+                return;
+            }
+            $("#roverclick").trigger("click");
+        });
+
+         $("#uploadinstructions").click(function () {
+            var formData = new FormData();
+            var files = $("#file")[0].files;
+
+            if(files.length > 0 )
+            {
+               formData.append('instructions',files[0]);
+            }
+            else{
+                return;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "UploadFile",
+                enctype: 'multipart/form-data',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    uploadInstructions = data;
+                    roverCount = data.length;
+                    prepareForMoving();
+                },
+                error: function(){
+                    alert('file not uploaded');
+                }
+            });
+        });
+
+    });
+
+        var uploadInstructions=[];
+        var roverIndex=0;
+        var roverCount=0;
+
+        function reset(){
+            $("#uploadcontainer").show();
+            $("#movecontainer").hide();
+            $("#roverprogress").show();
+        }
+
+        function processRover(index){
+            var moves = uploadInstructions[index].moves;
+            var numberOfMoves = moves.length -1;
+
+            $.each(moves, function(index, item){
+                var xCoordinate = item.x;
+                var yCoordinate = item.y;
+                var direction = item.direction.directionSymbol.toLowerCase();
+                var divId = "#col_" + xCoordinate + "_" + yCoordinate;
+                var positionDescription = "Current Position (" + xCoordinate + "," + yCoordinate + ")";
+                var $div = $(divId);
+                setTimeout(function () { turnOn($div, direction,positionDescription, index==numberOfMoves); }, 1000 * (index + 1));
+            });
+
+        }
+
+        function turnOn($div,direction,positionDescription, isLast){
+            $("div").removeClass("rover-on-e");
+            $("div").removeClass("rover-on-w");
+            $("div").removeClass("rover-on-n");
+            $("div").removeClass("rover-on-s");
+            $div.addClass("rover-on-" + direction);
+            $("#rover-progress").text(positionDescription);
+
+            if(isLast){
+                roverIndex++;
+                $("#roverclick").delay(2000).trigger("click");
+            }
+        }
+
+        function prepareForMoving(){
+            $("#uploadcontainer").hide();
+            $("#roverprogress").hide();
+            $("#movecontainer").show();
+        }
+
+         function startMoving(){
+            $("#uploadcontainer").hide();
+            $("#roverprogress").show();
+            $("#movecontainer").hide();
+        }
+
+
+</script>
+
+<div class="pagecontainer">
+<div class="header">
+    <h1 class="display-4">Welcome to Mars</h1>
+</div>
+
+<div class="plateau-container">
+<partial name="_Plateau" />
+</div>
+<div class="control-container" id="uploadcontainer">   
+    <div class="center-container">
+        <div class="center-column">
+            <form method="post" action="" enctype="multipart/form-data" id="uploadform">
+                <p>Please load your rovers:</p>                
+                <input type="file" name="file" id="file" class="filebutton" />
+                <input id="uploadinstructions" type="button" value="Upload" class="marsbutton" />
+            </form>
+        </div>
+    </div>    
+</div>
+
+<div class="control-container" id="movecontainer">
+    <div class="center-container">
+        <div class="center-column">
+            <div class="rovers-loaded">
+                <p>Thank You! The Rovers Are Loaded and Ready To Go</p>
+                <p>Click Start To Begin</p>
+                <div class="startbutton-container"><input id="moverovers" type="button" value="Start" class="marsbutton" /></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="control-container" id="roverprogress">
+    <div class="center-container">
+        <div class="center-column">
+            <div class="progress-container">
+                <p id="rover-progress" class="progress"></p>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<input type="button" id="roverclick" class="visually-hidden" />
