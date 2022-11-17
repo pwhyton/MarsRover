@@ -1,4 +1,5 @@
-Welcome to MarsRoverSolution
+Welcome to MarsRoverSolution, This solution needs to be loaded in VS2022, VS2019 gives some errors.
+
 Ive made the plateau size configurable by adding an options class and a setting in appsettings.json
 
 The plateau is loaded and the users must select a movements file to load.
