@@ -43,40 +43,7 @@ namespace MarsRover.Controllers
 
             return Json(spaceVehicleInstructions);
         }
-
-        public IActionResult LoadRovers()
-        {
-            return View();
-        }
-
-        public IActionResult MoveRovers(IEnumerable<SpaceVehicleInstruction> instructions)
-        {
-            var model = new MarsRoverMovingModel
-            {
-                Plateau = GetPlateauModel(),
-                Instructions = instructions
-            };
-
-            return View(model);
-        }
-
-        [HttpPost("SpecifySize")]
-        public IActionResult SpecifySize(PlateauModel plateauModel)
-        {
-            if (!ModelState.IsValid)
-            {
-                return RedirectToPage("Error");
-            }
-            
-            return RedirectToAction("LoadRovers", plateauModel);
-        }
-
-        public IActionResult LoadRovers(PlateauModel plateauModel)
-        {
-            
-            return View(plateauModel);
-        }
-
+       
         private PlateauModel GetPlateauModel()
         {
             return new PlateauModel
